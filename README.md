@@ -9,4 +9,11 @@ With conda:
 
 # Install
 
-pip install -r requirements.txt
+`pip install -r requirements.txt`
+
+# Run with docker
+
+`docker compose up`
+
+UI will run in  http://localhost:8080/
+API will run on  http://localhost:5001/

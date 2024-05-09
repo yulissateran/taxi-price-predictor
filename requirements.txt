@@ -7,3 +7,4 @@ pyarrow==15.0
 matplotlib==3.7.1
 gdown==5.1.0
 ipykernel==6.19.4
+seaborn==0.13.2
