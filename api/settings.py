@@ -1,0 +1,1 @@
+API_DEBUG = True
