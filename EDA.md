@@ -1,5 +1,4 @@
 #
-
 VendorID
 tpep_pickup_datetime
 tpep_dropoff_datetime
