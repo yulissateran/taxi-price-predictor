@@ -12,3 +12,20 @@ DATASET_TRAIN_URL = (
 DATASET_TRAIN_CLEANED = str(
     Path(DATASET_ROOT_PATH) / "trans_data_ready_to_feature_eng.csv"
 )
+
+DATASET_TEST = str(Path(DATASET_ROOT_PATH) / "trans_data_TEST.parquet")
+DATASET_TEST_URL = (
+    "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2022-06.parquet"
+)
+
+DATASET_TRAIN_DATA = str(
+    Path(DATASET_ROOT_PATH) / "train_data.csv"
+)
+
+DATASET_VAL_DATA = str(
+    Path(DATASET_ROOT_PATH) / "val_data.csv"
+)
+
+DATASET_TEST_DATA = str(
+    Path(DATASET_ROOT_PATH) / "test_data.csv"
+)
