@@ -12,7 +12,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from src import config
 
 
-def get_datasets() -> Tuple[pd.DataFrame]:
+def get_datasets() -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Download from GDrive all the needed datasets for the project.
 
@@ -26,14 +26,14 @@ def get_datasets() -> Tuple[pd.DataFrame]:
         columns_description : pd.DataFrame
             Extra dataframe with detailed description about dataset features
     """
-    # Download application_train_aai.csv
+    # Read DATASET_TRAIN_CLEANED
+    app_train = pd.read_csv(config.DATASET_TRAIN_CLEANED, delimiter = ",")
 
-    if not os.path.exists(config.DATASET_TRAIN):
-        gdown.download(config.DATASET_TRAIN_URL, config.DATASET_TRAIN, quiet=False)
-
-    app_train = pd.read_table(config.DATASET_TRAIN_CLEANED)
-    app_test = pq.read_table(config.DATASET_TEST)
-    app_test = app_test.to_pandas()
+    # Download application_test_aai.csv
+    #if not os.path.exists(config.DATASET_TEST):
+    #    gdown.download(config.DATASET_TEST_URL, config.DATASET_TEST, quiet=False)
+    app_test = app_train[:1000]
+    #app_test = pd.read_csv(config.DATASET_TEST)
 
     return app_train, app_test
 
@@ -66,13 +66,13 @@ def get_feature_target(
     # TODO
 
     # Assign to X_train all the columns from app_train except "TARGET"
-    X_train = app_train.drop("TARGET", axis=1)
+    X_train = app_train.drop("total_amount", axis=1)
     # Assign to y_train the "TARGET" column
-    y_train = app_train.TARGET
+    y_train = app_train.total_amount
     # Assign to X_test all the columns from app_test except "TARGET"
-    X_test = app_test.drop("TARGET", axis=1)
+    X_test = app_test.drop("total_amount", axis=1)
     # Assign to y_test the "TARGET" column
-    y_test = app_test.TARGET
+    y_test = app_test.total_amount
 
     return X_train, y_train, X_test, y_test
 
