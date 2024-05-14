@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import MinMaxScaler
 
-from src.data_utils2 import find_columns, transform_data
+from src.data_utils import find_columns, transform_data
 
 
 def preprocess_data(
@@ -36,8 +36,7 @@ def preprocess_data(
     working_val_df = val_df.copy()
     working_test_df = test_df.copy()
 
-    # 1. Correct outliers/anomalous values in 
-    
+    # 1. Correct outliers/anomalous values in
     # 2.  - If the feature has 2 categories encode using binary encoding,
     #       please use `sklearn.preprocessing.OrdinalEncoder()`. Only 4 columns
     #       from the dataset should have 2 categories.
@@ -59,7 +58,7 @@ def preprocess_data(
     imputer = SimpleImputer(strategy="median")
 
     # Ajustar el imputador solo en el conjunto de datos de entrenamiento
-    imp= imputer.fit(transformed_train)
+    imp = imputer.fit(transformed_train)
 
     # Transformar todos los conjuntos de datos utilizando el imputador ajustado
     imputed_train_df = imp.transform(transformed_train)
