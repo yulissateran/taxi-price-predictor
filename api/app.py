@@ -1,6 +1,6 @@
 import settings
 from flask import Flask
-from api import router
+from view import router
 from flask_cors import CORS
 
 app = Flask(__name__)
