@@ -5,9 +5,9 @@ FROM python:3.8.13 as base
 ENV PYTHONPATH=$PYTHONPATH:/src/
 ENV PATH=$PATH:/home/app/.local/bin/
 
-COPY ./ /src
+COPY ./ /api
 
-WORKDIR /src
+WORKDIR /api
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
 

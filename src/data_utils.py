@@ -43,31 +43,42 @@ def get_datasets() -> Tuple[pd.DataFrame, pd.DataFrame]:
     return app_train, app_test
 
 
+def agregate_columns_to_input(
+    dataset: pd.DataFrame,
+) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
+    # Replace tpep_pickup_datetime and tpep_dropoff_datetime columns with new columns
+    dataset["pickup_year"] = dataset["tpep_pickup_datetime"].dt.year
+    dataset["pickup_day"] = dataset["tpep_pickup_datetime"].dt.day
+    dataset["pickup_hour"] = dataset["tpep_pickup_datetime"].dt.hour
+    dataset["pickup_minute"] = dataset["tpep_pickup_datetime"].dt.minute
+
+    dataset.drop("tpep_pickup_datetime", inplace=True, axis=1)
+    return dataset
+
+
+def agregate_columns(
+    dataset: pd.DataFrame,
+) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
+
+    # Add the new 'duration_in_minutes' column to the DataFrame
+    dataset["duration_in_minutes"] = (
+        dataset["tpep_dropoff_datetime"] - dataset["tpep_pickup_datetime"]
+    ).dt.total_seconds() / 60
+
+    # Replace tpep_pickup_datetime and tpep_dropoff_datetime columns with new columns
+    dataset["pickup_year"] = dataset["tpep_pickup_datetime"].dt.year
+    dataset["pickup_day"] = dataset["tpep_pickup_datetime"].dt.day
+    dataset["pickup_hour"] = dataset["tpep_pickup_datetime"].dt.hour
+    dataset["pickup_minute"] = dataset["tpep_pickup_datetime"].dt.minute
+
+    dataset.drop("tpep_pickup_datetime", inplace=True, axis=1)
+    dataset.drop("tpep_dropoff_datetime", inplace=True, axis=1)
+    return dataset
+
+
 def delete_invalid_rows(
     dataset: pd.DataFrame,
 ) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
-    """
-    Separates our train and test datasets columns between Features
-    (the input to the model) and Targets (what the model has to predict with the
-    given features).
-
-    Arguments:
-        app_train : pd.DataFrame
-            Training datasets
-        app_test : pd.DataFrame
-            Test datasets
-
-    Returns:
-        X_train : pd.DataFrame
-            Training features
-        y_train : pd.Series
-            Training target
-        X_test : pd.DataFrame
-            Test features
-        y_test : pd.Series
-            Test target
-    """
-
     # Validate that empty (NaN) values ​​in multiple columns belong to the same rows
     # Create a new column indicating whether all columns are empty in a specific row
     # Remove rows with multiple empty columns, as they only represents 3% of the dataset
@@ -108,73 +119,43 @@ def get_feature_target(
         y_test : pd.Series
             Test target
     """
-    app_train = app_train_param.copy()
-    app_test = app_test_param.copy()
+    X_train = app_train_param.copy()
+    X_test = app_test_param.copy()
 
-    app_train = delete_invalid_rows(app_train)
-    app_test = delete_invalid_rows(app_test)
-
-    # Remove rows that are not from 2022
-    # it is easy to visualize and analiza training data from the same month
-    app_train = app_train[
-        (app_train["tpep_pickup_datetime"].dt.year == 2022)
-        & (app_train["tpep_dropoff_datetime"].dt.year == 2022)
-    ]
-
-    # Remove all rows with trip_distance > 50 because they are outliers in the graphic
-    # TODO: check how to achieve it mathematically and not arbitrialy
-    app_train = app_train[app_train["trip_distance"] < 50]
-
-    # Remove all rows with RatecodeID > 6 because according to docs RatecodeID can only goes from 1 to 6
-    app_train = app_train[app_train["RatecodeID"] < 7]
-
-    # Removing rows with PULocationID > 263 or DOLocationID > 263 because according to the documentation, the maximum value is 265
-    # and 264 = Unknown and 265 = NA, they do not add value to the model
-    # In total 57190 rows removed
-    app_train = app_train[
-        (app_train["PULocationID"] < 263) | (app_train["DOLocationID"] < 263)
-    ]
-
-    # Replace tpep_pickup_datetime and tpep_dropoff_datetime columns with new columns
-    app_train["pickup_day"] = app_train["tpep_pickup_datetime"].dt.day
-    app_train["pickup_hour"] = app_train["tpep_pickup_datetime"].dt.hour
-    app_train["pickup_minute"] = app_train["tpep_pickup_datetime"].dt.minute
-    app_train["dropoff_day"] = app_train["tpep_dropoff_datetime"].dt.day
-    app_train["dropoff_hour"] = app_train["tpep_dropoff_datetime"].dt.hour
-    app_train["dropoff_minute"] = app_train["tpep_dropoff_datetime"].dt.minute
-
-    # Replace tpep_pickup_datetime and tpep_dropoff_datetime columns with new columns
-    app_test["pickup_day"] = app_test["tpep_pickup_datetime"].dt.day
-    app_test["pickup_hour"] = app_test["tpep_pickup_datetime"].dt.hour
-    app_test["pickup_minute"] = app_test["tpep_pickup_datetime"].dt.minute
-    app_test["dropoff_day"] = app_test["tpep_dropoff_datetime"].dt.day
-    app_test["dropoff_hour"] = app_test["tpep_dropoff_datetime"].dt.hour
-    app_test["dropoff_minute"] = app_test["tpep_dropoff_datetime"].dt.minute
-
-    app_train.drop("tpep_pickup_datetime", inplace=True, axis=1)
-    app_train.drop("tpep_dropoff_datetime", inplace=True, axis=1)
-    app_train.drop("empty_columns", inplace=True, axis=1)
-
-    app_test.drop("tpep_pickup_datetime", inplace=True, axis=1)
-    app_test.drop("tpep_dropoff_datetime", inplace=True, axis=1)
-
-    print(app_train.columns)
+    # Assign to y_train the "TARGET" column
+    y_train_total_amount = X_train.total_amount
+    y_train_duration_in_minutes = X_train.duration_in_minutes
 
     # Assign to X_train all the columns from app_train except "TARGET"
-    X_train = app_train.drop("total_amount", axis=1)
-    # Assign to y_train the "TARGET" column
-    y_train = app_train.total_amount
-    # Assign to X_test all the columns from app_test except "TARGET"
-    X_test = app_test.drop("total_amount", axis=1)
-    # Assign to y_test the "TARGET" column
-    y_test = app_test.total_amount
+    X_train.drop("total_amount", inplace=True, axis=1)
+    X_train.drop("duration_in_minutes", inplace=True, axis=1)
 
-    return X_train, y_train, X_test, y_test
+    # X_train = X_train.drop("total_amount", axis=1)
+    # X_train = X_train.drop("duration_in_minutes", axis=1)
+
+    # Assign to y_test the "TARGET" column
+    y_test_total_amount = X_test.total_amount
+    y_test_duration_in_minutes = X_test.duration_in_minutes
+
+    # Assign to X_test all the columns from app_test except "TARGET"
+    X_test.drop("total_amount", inplace=True, axis=1)
+    X_test.drop("duration_in_minutes", inplace=True, axis=1)
+
+    return (
+        X_train,
+        y_train_total_amount,
+        y_train_duration_in_minutes,
+        X_test,
+        y_test_total_amount,
+        y_test_duration_in_minutes,
+    )
 
 
 def get_train_val_sets(
-    X_train: pd.DataFrame, y_train: pd.Series
-) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
+    X_train: pd.DataFrame,
+    y_train_total_amount: pd.Series,
+    y_train_duration_in_minutes: pd.Series,
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series, pd.Series]:
     """
     Split training dataset in two new sets used for train and validation.
 
@@ -195,15 +176,30 @@ def get_train_val_sets(
             Validation target
     """
 
-    X_train, X_val, y_train, y_val = train_test_split(
-        X_train,  # independent variables
-        y_train,  # dependent variable
+    (
+        X_train,
+        X_val,
+        y_train_total_amount,
+        y_val_total_amount,
+        y_train_duration_in_minutes,
+        y_val_duration_in_minutes,
+    ) = train_test_split(
+        X_train,
+        y_train_total_amount,
+        y_train_duration_in_minutes,
         test_size=0.2,
         random_state=42,
         shuffle=True,
     )
 
-    return X_train, X_val, y_train, y_val
+    return (
+        X_train,
+        X_val,
+        y_train_total_amount,
+        y_val_total_amount,
+        y_train_duration_in_minutes,
+        y_val_duration_in_minutes,
+    )
 
 
 # Listado de las features con 2 categorias y otra con mas de dos
@@ -235,9 +231,8 @@ def transform_data(
     mas_dos_categorias: list,
 ) -> pd.DataFrame:
     # One-hot encoding
-    one_hot_encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
-
     # Ordinal encoding
+    one_hot_encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
     ordinal_encoder = OrdinalEncoder()
 
     transformers = [
@@ -256,4 +251,4 @@ def transform_data(
     transformed_X_val = transformer.transform(X_val)
     transformed_X_test = transformer.transform(X_test)
 
-    return transformed_X_train, transformed_X_val, transformed_X_test
+    return transformed_X_train, transformed_X_val, transformed_X_test, transformer
