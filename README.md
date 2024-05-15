@@ -28,15 +28,9 @@ V2:
 - PRENTACION (JHON)
 - MEJORAR LA UI (YULI)
 
-V3
+COLUMNAS A INCLUIR EN MODELOS:
 
-- hiperparamtros
-- mapa ui
-- wheather
-
-MODELO DE COSTO:
-
-// No se tienen al momento de realizar la prediccion
+// NO, porque no se tienen al momento de realizar la prediccion
 'tpep_dropoff_datetime'
 'fare_amount'
 total_amount
@@ -45,7 +39,7 @@ total_amount
 'trip_distance'
 'RatecodeID'
 
-// Si se tiene
+// SI, porque si se tienen
 'tpep_pickup_datetime'
 'passenger_count'
 'airport_fee'
@@ -55,9 +49,16 @@ total_amount
 'tip_amount'
 
 
-/ pendiente identificar si se tienen antes del viaje
+// Pendiente identificar si se tienen antes del viaje
 'extra'
 'mta_tax'
 'tolls_amount'
 'improvement_surcharge'
 'congestion_surcharge'
+
+
+V3
+
+- hiperparamtros
+- mapa ui
+- wheather
