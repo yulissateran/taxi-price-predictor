@@ -24,8 +24,8 @@ V2:
 - CREAR DB (LEONARDO)
 - REVISAR QUE COLUMNAS TENEMOS DISPONIBLES ANTES DE TOMAR EL VIAJE Y SOLO USAR ESAS PARA EL ENTRENAMIENTO (RAFAEL)
 - IDENTIFICAR LA FORMULA PARA CALCULAR TIP_AMOUNT PARA VIAJES CON TC (JAIME)
-- ITERAR SOBRE EL F ENGINEER, PROBAR MODELOS PARA SUBIR EL SCORE (ALEXANDER) (JAIME)
-- PRENTACION (JHON)
+- ITERAR SOBRE EL F ENGINEER, PROBAR MODELOS PARA SUBIR EL SCORE (ALEXANDER) (JAIME) (LOS QUE QUIERAN SUMARSE A ESTO TB BIENVENIDO)
+- PRESENTACION (JHON)
 - MEJORAR LA UI (YULI)
 
 COLUMNAS A INCLUIR EN MODELOS:
@@ -38,6 +38,7 @@ total_amount
 'VendorID'
 'trip_distance'
 'RatecodeID'
+'tolls_amount'
 
 // SI, porque si se tienen
 'tpep_pickup_datetime'
@@ -49,10 +50,9 @@ total_amount
 'tip_amount'
 
 
-// Pendiente identificar si se tienen antes del viaje
+// Pendiente identificar si hay forma de tener esta informacion antes del viaje
 'extra'
 'mta_tax'
-'tolls_amount'
 'improvement_surcharge'
 'congestion_surcharge'
 
