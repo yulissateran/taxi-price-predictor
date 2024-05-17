@@ -1,4 +1,12 @@
-const predict = async (data: { pickupId: number }): Promise<{ fareAmount: string; duration: string }> => {
+export interface PredictPayload {
+  pickUpDateTime: string;
+  dropOffId: number;
+  passengersNumber: number;
+  pickUpId: number;
+  paymentMethodId: number;
+}
+
+const predict = async (data: PredictPayload): Promise<{ amount: string; duration: string }> => {
   const response = await fetch('http://localhost:5001/predict', {
     method: 'POST',
     headers: {

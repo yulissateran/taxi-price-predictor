@@ -2,19 +2,29 @@ import { ArrowLeftIcon } from '@heroicons/react/16/solid';
 import { useState } from 'react';
 import ButtonComponent from './components/Button';
 import Card from './components/Card';
-import Form from './components/Form';
-import { PredictorService } from './services/predictor.service';
+import Form, { FormValue } from './components/Form';
+import { PredictPayload, PredictorService } from './services/predictor.service';
+import { TAXI_ZONES } from './taxi-zones';
+import { formatDate } from './utils/format-date';
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [prediction, setPrediction] = useState<{ fareAmount: string; duration: string } | undefined>();
+  const [prediction, setPrediction] = useState<{ amount: string; duration: string } | undefined>();
 
-  const onSend = async () => {
+  const onSend = async (formValue: FormValue) => {
     setIsLoading(true);
 
+    const payload: PredictPayload = {
+      pickUpDateTime: formatDate(formValue.pickUpDateTime),
+      dropOffId: formValue.dropOffId,
+      passengersNumber: formValue.passengersNumber,
+      pickUpId: formValue.pickUpId,
+      paymentMethodId: formValue.isFreeTrip ? 3 : formValue.paymentMethodId,
+    };
+
     try {
-      const response = await PredictorService.predict({ pickupId: 1 });
+      const response = await PredictorService.predict(payload);
       console.log('response', response);
 
       setIsLoading(false);
@@ -30,7 +40,7 @@ function App() {
     <>
       <div className='w-dvw h-dvh bg-gray-900 flex justify-center items-center'>
         <Card>
-          {!prediction && !hasError && <Form onSend={onSend} isLoading={isLoading} />}
+          {!prediction && !hasError && <Form onSend={onSend} isLoading={isLoading} zones={TAXI_ZONES} />}
 
           {prediction && !hasError && (
             <>
@@ -46,7 +56,7 @@ function App() {
               </div>
               <br />
 
-              <span> Price: {prediction.fareAmount} </span>
+              <span> Price: {prediction.amount} </span>
               <br />
               <br />
               <span> Duration: {prediction.duration} </span>
