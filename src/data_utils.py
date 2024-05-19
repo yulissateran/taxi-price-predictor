@@ -43,19 +43,6 @@ def get_datasets() -> Tuple[pd.DataFrame, pd.DataFrame]:
     return app_train, app_test
 
 
-def agregate_columns_to_input(
-    dataset: pd.DataFrame,
-) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
-    # Replace tpep_pickup_datetime and tpep_dropoff_datetime columns with new columns
-    dataset["pickup_year"] = dataset["tpep_pickup_datetime"].dt.year
-    dataset["pickup_day"] = dataset["tpep_pickup_datetime"].dt.day
-    dataset["pickup_hour"] = dataset["tpep_pickup_datetime"].dt.hour
-    dataset["pickup_minute"] = dataset["tpep_pickup_datetime"].dt.minute
-
-    dataset.drop("tpep_pickup_datetime", inplace=True, axis=1)
-    return dataset
-
-
 def agregate_columns(
     dataset: pd.DataFrame,
 ) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
@@ -68,30 +55,12 @@ def agregate_columns(
     # Replace tpep_pickup_datetime and tpep_dropoff_datetime columns with new columns
     dataset["pickup_year"] = dataset["tpep_pickup_datetime"].dt.year
     dataset["pickup_day"] = dataset["tpep_pickup_datetime"].dt.day
+    dataset["pickup_day_of_week"] = dataset["tpep_pickup_datetime"].dt.dayofweek
     dataset["pickup_hour"] = dataset["tpep_pickup_datetime"].dt.hour
     dataset["pickup_minute"] = dataset["tpep_pickup_datetime"].dt.minute
 
     dataset.drop("tpep_pickup_datetime", inplace=True, axis=1)
     dataset.drop("tpep_dropoff_datetime", inplace=True, axis=1)
-    return dataset
-
-
-def delete_invalid_rows(
-    dataset: pd.DataFrame,
-) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
-    # Validate that empty (NaN) values ​​in multiple columns belong to the same rows
-    # Create a new column indicating whether all columns are empty in a specific row
-    # Remove rows with multiple empty columns, as they only represents 3% of the dataset
-
-    columns_to_validate = [
-        "passenger_count",
-        "RatecodeID",
-        "store_and_fwd_flag",
-        "congestion_surcharge",
-        "airport_fee",
-    ]
-    dataset["empty_columns"] = dataset[columns_to_validate].isnull().all(axis=1)
-    dataset = dataset[dataset["empty_columns"] == False]
     return dataset
 
 

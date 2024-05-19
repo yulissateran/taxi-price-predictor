@@ -31,22 +31,32 @@ def preprocess_data(
     print("Input val data shape: ", val_df.shape)
     print("Input test data shape: ", test_df.shape, "\n")
 
-    print(type(train_df), type(val_df), type(test_df))
     # Make a copy of the dataframes
     working_train_df = train_df.copy()
     working_val_df = val_df.copy()
     working_test_df = test_df.copy()
 
-    # 1. Correct outliers/anomalous values in
-    """     working_train_df = delete_invalid_rows(working_train_df)
-    working_val_df = delete_invalid_rows(working_val_df)
-    working_test_df = delete_invalid_rows(working_test_df)
-    """
+    # 1. Correct outliers/anomalous values in the dataset.
+    # passengers number should be between 1 and 6 according documentation
+    working_train_df.loc[working_train_df["passenger_count"] > 6, "passenger_count"] = (
+        np.nan
+    )
+    working_val_df.loc[working_val_df["passenger_count"] > 6, "pickup_year"] = np.nan
+    working_train_df.loc[working_train_df["passenger_count"] < 1, "passenger_count"] = (
+        np.nan
+    )
+    working_val_df.loc[working_val_df["passenger_count"] < 1, "pickup_year"] = np.nan
+
+    # visually saw on the histplot that most of the rows are under 100
+    working_train_df.loc[working_train_df["fare_amount"] >= 1, "fare_amount"] = np.nan
+    working_val_df.loc[working_val_df["fare_amount"] >= 1, "pickup_year"] = np.nan
+    working_train_df.loc[working_train_df["fare_amount"] <= 100, "fare_amount"] = np.nan
+    working_val_df.loc[working_val_df["fare_amount"] <= 100, "pickup_year"] = np.nan
+
     # Remove rows that are not from 2022
     # it is easy to visualize and analiza training data from the same month
-
     working_train_df.loc[working_train_df["pickup_year"] > 2022, "pickup_year"] = np.nan
-    working_val_df.loc[working_val_df["pickup_year"] > 2022, "trip_distance"] = np.nan
+    working_val_df.loc[working_val_df["pickup_year"] > 2022, "pickup_year"] = np.nan
 
     # Replace all rows with trip_distance > 50 because they are outliers in the graphic
     # TODO: check how to achieve it mathematically and not arbitrialy
@@ -83,6 +93,48 @@ def preprocess_data(
     #       `sklearn.preprocessing.OneHotEncoder()`. 12 columns
     #       from the dataset should have more than 2 categories.
 
+    # Removing columns that are not available in the momment that users are going to predict total amount and duration
+    working_val_df.drop("fare_amount", inplace=True, axis=1)
+    working_train_df.drop("fare_amount", inplace=True, axis=1)
+    working_test_df.drop("fare_amount", inplace=True, axis=1)
+
+    working_val_df.drop("store_and_fwd_flag", inplace=True, axis=1)
+    working_train_df.drop("store_and_fwd_flag", inplace=True, axis=1)
+    working_test_df.drop("store_and_fwd_flag", inplace=True, axis=1)
+
+    working_val_df.drop("trip_distance", inplace=True, axis=1)
+    working_train_df.drop("trip_distance", inplace=True, axis=1)
+    working_test_df.drop("trip_distance", inplace=True, axis=1)
+
+    working_val_df.drop("RatecodeID", inplace=True, axis=1)
+    working_train_df.drop("RatecodeID", inplace=True, axis=1)
+    working_test_df.drop("RatecodeID", inplace=True, axis=1)
+
+    working_val_df.drop("VendorID", inplace=True, axis=1)
+    working_train_df.drop("VendorID", inplace=True, axis=1)
+    working_test_df.drop("VendorID", inplace=True, axis=1)
+
+    working_val_df.drop("tolls_amount", inplace=True, axis=1)
+    working_train_df.drop("tolls_amount", inplace=True, axis=1)
+    working_test_df.drop("tolls_amount", inplace=True, axis=1)
+
+    working_val_df.drop("congestion_surcharge", inplace=True, axis=1)
+    working_train_df.drop("congestion_surcharge", inplace=True, axis=1)
+    working_test_df.drop("congestion_surcharge", inplace=True, axis=1)
+
+    working_val_df.drop("tip_amount", inplace=True, axis=1)
+    working_train_df.drop("tip_amount", inplace=True, axis=1)
+    working_test_df.drop("tip_amount", inplace=True, axis=1)
+
+    working_val_df.drop("mta_tax", inplace=True, axis=1)
+    working_train_df.drop("mta_tax", inplace=True, axis=1)
+    working_test_df.drop("mta_tax", inplace=True, axis=1)
+
+    working_val_df.drop("extra", inplace=True, axis=1)
+    working_train_df.drop("extra", inplace=True, axis=1)
+    working_test_df.drop("extra", inplace=True, axis=1)
+
+    print("columns", working_test_df.columns)
     dos_categorias, mas_dos_categorias = find_columns(working_train_df)
     transformed_train, Tranformed_X_val, Transformed_X_test, transformer = (
         transform_data(
