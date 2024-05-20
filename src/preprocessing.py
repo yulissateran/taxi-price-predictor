@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import MinMaxScaler
-from src.data_utils import find_columns, transform_data, delete_invalid_rows
+from src.data_utils import find_columns, transform_data
 from joblib import dump, load
 from src.save_model import save_encoder, save_imputer, save_scaler
 
@@ -45,18 +45,21 @@ def preprocess_data(
     working_train_df.loc[working_train_df["passenger_count"] < 1, "passenger_count"] = (
         np.nan
     )
-    working_val_df.loc[working_val_df["passenger_count"] < 1, "pickup_year"] = np.nan
+    working_val_df.loc[working_val_df["passenger_count"] < 1, "passenger_count"] = (
+        np.nan
+    )
+    # TODO: check how to achieve it mathematically using IQR and not arbitrialy
 
     # visually saw on the histplot that most of the rows are under 100
-    working_train_df.loc[working_train_df["fare_amount"] >= 1, "fare_amount"] = np.nan
-    working_val_df.loc[working_val_df["fare_amount"] >= 1, "pickup_year"] = np.nan
-    working_train_df.loc[working_train_df["fare_amount"] <= 100, "fare_amount"] = np.nan
-    working_val_df.loc[working_val_df["fare_amount"] <= 100, "pickup_year"] = np.nan
+    working_train_df.loc[working_train_df["fare_amount"] <= 1, "fare_amount"] = np.nan
+    working_val_df.loc[working_val_df["fare_amount"] <= 1, "fare_amount"] = np.nan
+    working_train_df.loc[working_train_df["fare_amount"] >= 100, "fare_amount"] = np.nan
+    working_val_df.loc[working_val_df["fare_amount"] >= 100, "fare_amount"] = np.nan
 
     # Remove rows that are not from 2022
     # it is easy to visualize and analiza training data from the same month
     working_train_df.loc[working_train_df["pickup_year"] > 2022, "pickup_year"] = np.nan
-    working_val_df.loc[working_val_df["pickup_year"] > 2022, "pickup_year"] = np.nan
+    working_val_df.loc[working_val_df["pickup_year"] < 2022, "pickup_year"] = np.nan
 
     # Replace all rows with trip_distance > 50 because they are outliers in the graphic
     # TODO: check how to achieve it mathematically and not arbitrialy
