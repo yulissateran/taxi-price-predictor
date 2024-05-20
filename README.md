@@ -18,15 +18,14 @@ With conda:
 UI will run in http://localhost:8080/
 API will run on http://localhost:5001/
 
-TODO:
-V2:
 
-- CREAR DB (LEONARDO)
-- REVISAR QUE COLUMNAS TENEMOS DISPONIBLES ANTES DE TOMAR EL VIAJE Y SOLO USAR ESAS PARA EL ENTRENAMIENTO (RAFAEL)
-- IDENTIFICAR LA FORMULA PARA CALCULAR TIP_AMOUNT PARA VIAJES CON TC (JAIME)
-- ITERAR SOBRE EL F ENGINEER, PROBAR MODELOS PARA SUBIR EL SCORE (ALEXANDER) (JAIME) (LOS QUE QUIERAN SUMARSE A ESTO TB BIENVENIDO)
-- PRESENTACION (JHON)
-- MEJORAR LA UI (YULI)
+TODO Semana 3:
+
+- Slides (JHON)
+- Corregir data cleaning (justificar eliminacion de outliers usando quartiles) Leonardo, Rafael
+- Volver a correr modelo, mejorar score (up to 80%, using) Jaime
+- Hiperparametrizacion (Jaime, Alexander)
+- UI Incluir mapa que indique direccion de pickup y dropoff (Leo, Yuli)
 
 COLUMNAS A INCLUIR EN MODELOS:
 
@@ -48,16 +47,11 @@ total_amount
 'DOLocationID'
 'payment_type'
 'tip_amount'
-
-
-// Pendiente identificar si hay forma de tener esta informacion antes del viaje
 'extra'
 'mta_tax'
 'improvement_surcharge'
 'congestion_surcharge'
 
-
-V3
 
 - hiperparamtros
 - mapa ui
