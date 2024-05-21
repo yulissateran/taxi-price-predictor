@@ -91,6 +91,9 @@ def get_feature_target(
     X_train = app_train_param.copy()
     X_test = app_test_param.copy()
 
+    X_train = X_train[X_train['total_amount']<400]
+    X_test = X_test[X_test['total_amount']<400]
+
     # Assign to y_train the "TARGET" column
     y_train_total_amount = X_train.total_amount
     y_train_duration_in_minutes = X_train.duration_in_minutes
