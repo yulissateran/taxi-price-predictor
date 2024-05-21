@@ -38,35 +38,74 @@ def preprocess_data(
 
     # 1. Correct outliers/anomalous values in the dataset.
     # passengers number should be between 1 and 6 according documentation
-    working_train_df.loc[working_train_df["passenger_count"] > 6, "passenger_count"] = (
-        np.nan
-    )
-    working_val_df.loc[working_val_df["passenger_count"] > 6, "pickup_year"] = np.nan
-    working_train_df.loc[working_train_df["passenger_count"] < 1, "passenger_count"] = (
-        np.nan
-    )
-    working_val_df.loc[working_val_df["passenger_count"] < 1, "passenger_count"] = (
-        np.nan
-    )
+    # Se encontraron valores entre 0 y 8,
+    # 0 valores sin pasajeros para entrega de paquetes
+    # mas de 6 segun tipo de transporte.
+    #working_train_df.loc[working_train_df["passenger_count"] > 6, "passenger_count"] = (
+    #    np.nan
+    #)
+    #working_val_df.loc[working_val_df["passenger_count"] > 6, "passenger_count"] = np.nan
+
+
+    #working_train_df.loc[working_train_df["passenger_count"] < 1, "passenger_count"] = (
+    #    np.nan
+    #)
+    #working_val_df.loc[working_val_df["passenger_count"] < 1, "passenger_count"] = (
+    #    np.nan
+    #)
     # TODO: check how to achieve it mathematically using IQR and not arbitrialy
 
     # visually saw on the histplot that most of the rows are under 100
-    working_train_df.loc[working_train_df["fare_amount"] <= 1, "fare_amount"] = np.nan
-    working_val_df.loc[working_val_df["fare_amount"] <= 1, "fare_amount"] = np.nan
-    working_train_df.loc[working_train_df["fare_amount"] >= 100, "fare_amount"] = np.nan
-    working_val_df.loc[working_val_df["fare_amount"] >= 100, "fare_amount"] = np.nan
+
+
+
+    # Se uso 3 desviaciones estandar para el filtrado de los dos dataset train y val. Usar grafico para mostrar cambios.
+    mean_train = working_train_df['fare_amount'].mean()
+    std_train = working_train_df['fare_amount'].std()
+
+    working_train_df['fare_amount_sigmas'] = (working_train_df['fare_amount'] - mean_train) / std_train
+
+    working_train_df = working_train_df[
+        (working_train_df['fare_amount_sigmas'] < 3) &
+        (working_train_df['fare_amount_sigmas'] > -3)
+    ]
+
+    working_train_df = working_train_df[working_train_df['fare_amount']>0]
+    working_train_df.drop("fare_amount_sigmas", inplace=True, axis=1)
+    
+
+    mean_val = working_val_df['fare_amount'].mean()
+    std_val = working_val_df['fare_amount'].std()
+
+    working_val_df['fare_amount_sigmas'] = (working_val_df['fare_amount'] - mean_val) / std_val
+
+    working_val_df = working_val_df[
+        (working_val_df['fare_amount_sigmas'] < 3) &
+        (working_val_df['fare_amount_sigmas'] > -3)
+    ]
+
+    working_val_df = working_val_df[working_val_df['fare_amount']>0]
+    working_val_df.drop("fare_amount_sigmas", inplace=True, axis=1)
+
+ #   working_train_df.loc[working_train_df["fare_amount"] <= 1, "fare_amount"] = np.nan
+ #   working_val_df.loc[working_val_df["fare_amount"] <= 1, "fare_amount"] = np.nan
+ #   working_train_df.loc[working_train_df["fare_amount"] >= 100, "fare_amount"] = np.nan
+ #   working_val_df.loc[working_val_df["fare_amount"] >= 100, "fare_amount"] = np.nan
+
+
+
 
     # Remove rows that are not from 2022
     # it is easy to visualize and analiza training data from the same month
-    working_train_df.loc[working_train_df["pickup_year"] > 2022, "pickup_year"] = np.nan
-    working_val_df.loc[working_val_df["pickup_year"] < 2022, "pickup_year"] = np.nan
+    working_train_df.loc[working_train_df["pickup_year"] != 2022, "pickup_year"] = np.nan
+    working_val_df.loc[working_val_df["pickup_year"] != 2022, "pickup_year"] = np.nan
 
     # Replace all rows with trip_distance > 50 because they are outliers in the graphic
     # TODO: check how to achieve it mathematically and not arbitrialy
-    working_train_df.loc[working_train_df["trip_distance"] > 50, "trip_distance"] = (
+    working_train_df.loc[working_train_df["trip_distance"] > 60, "trip_distance"] = (
         np.nan
     )
-    working_val_df.loc[working_val_df["trip_distance"] > 50, "trip_distance"] = np.nan
+    working_val_df.loc[working_val_df["trip_distance"] > 60, "trip_distance"] = np.nan   
 
     # Remove all rows with RatecodeID > 6 because according to docs RatecodeID can only goes from 1 to 6
     working_train_df.loc[working_train_df["RatecodeID"] > 6, "RatecodeID"] = np.nan
