@@ -8,6 +8,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import numpy as np
+#from data_utils import agregate_columns
 
 from src import config
 
@@ -40,6 +42,153 @@ def get_datasets() -> Tuple[pd.DataFrame, pd.DataFrame]:
     app_test = pq.read_table(config.DATASET_TEST)
     app_test = app_test.to_pandas()
 
+        # 1. Correct outliers/anomalous values in the dataset.
+    # passengers number should be between 1 and 6 according documentation
+    # Se encontraron valores entre 0 y 8,
+    # 0 valores sin pasajeros para entrega de paquetes
+    # mas de 6 segun tipo de transporte.
+    #app_train.loc[app_train["passenger_count"] > 6, "passenger_count"] = (
+    #    np.nan
+    #)
+    #app_test.loc[app_test["passenger_count"] > 6, "passenger_count"] = np.nan
+
+
+    #app_train.loc[app_train["passenger_count"] < 1, "passenger_count"] = (
+    #    np.nan
+    #)
+    #app_test.loc[app_test["passenger_count"] < 1, "passenger_count"] = (
+    #    np.nan
+    #)
+    # TODO: check how to achieve it mathematically using IQR and not arbitrialy
+
+    # visually saw on the histplot that most of the rows are under 100
+
+
+
+    # Se uso 3 desviaciones estandar para el filtrado de los dos dataset train y val. Usar grafico para mostrar cambios.
+    mean_train = app_train['fare_amount'].mean()
+    std_train = app_train['fare_amount'].std()
+
+    app_train['fare_amount_sigmas'] = (app_train['fare_amount'] - mean_train) / std_train
+
+    app_train = app_train[
+        (app_train['fare_amount_sigmas'] < 3) &
+        (app_train['fare_amount_sigmas'] > -3)
+    ]
+
+    app_train = app_train[app_train['fare_amount']>0]
+    app_train.drop("fare_amount_sigmas", inplace=True, axis=1)
+    
+
+    mean_test = app_test['fare_amount'].mean()
+    std_val = app_test['fare_amount'].std()
+
+    app_test['fare_amount_sigmas'] = (app_test['fare_amount'] - mean_test) / std_val
+
+    app_test = app_test[
+        (app_test['fare_amount_sigmas'] < 3) &
+        (app_test['fare_amount_sigmas'] > -3)
+    ]
+
+    app_test = app_test[app_test['fare_amount']>0]
+    app_test.drop("fare_amount_sigmas", inplace=True, axis=1)
+
+ #   app_train.loc[app_train["fare_amount"] <= 1, "fare_amount"] = np.nan
+ #   app_test.loc[app_test["fare_amount"] <= 1, "fare_amount"] = np.nan
+ #   app_train.loc[app_train["fare_amount"] >= 100, "fare_amount"] = np.nan
+ #   app_test.loc[app_test["fare_amount"] >= 100, "fare_amount"] = np.nan
+
+    app_train =  agregate_columns(app_train)
+    app_test =  agregate_columns(app_test)
+
+
+    # Remove rows that are not from 2022
+    # it is easy to visualize and analiza training data from the same month
+    app_train.loc[app_train["pickup_year"] != 2022, "pickup_year"] = np.nan
+    app_test.loc[app_test["pickup_year"] != 2022, "pickup_year"] = np.nan
+
+    # Replace all rows with trip_distance > 50 because they are outliers in the graphic
+    # TODO: check how to achieve it mathematically and not arbitrialy
+    app_train.loc[app_train["trip_distance"] > 60, "trip_distance"] = (
+        np.nan
+    )
+    app_test.loc[app_test["trip_distance"] > 60, "trip_distance"] = np.nan   
+
+    # Remove all rows with RatecodeID > 6 because according to docs RatecodeID can only goes from 1 to 6
+    app_train.loc[app_train["RatecodeID"] > 6, "RatecodeID"] = np.nan
+    app_test.loc[app_test["RatecodeID"] > 6, "RatecodeID"] = np.nan
+
+    # Removing rows with PULocationID > 263 or DOLocationID > 263 because according to the documentation, the maximum value is 265
+    # and 264 = Unknown and 265 = NA, they do not add value to the model
+    # In total 57190 rows removed
+    app_train.loc[app_train["PULocationID"] > 263, "PULocationID"] = (
+        np.nan
+    )
+    app_test.loc[app_test["DOLocationID"] > 263, "DOLocationID"] = (
+        np.nan
+    )
+
+    app_train = app_train[app_train['total_amount']<400]
+    app_test = app_test[app_test['total_amount']<400]
+
+
+    #app_test.loc[app_test["PULocationID"] > 263, "PULocationID"] = np.nan
+    #app_test.loc[app_test["DOLocationID"] > 263, "DOLocationID"] = np.nan
+
+    # Replacing None values in store_and_fwd_flag with 'N'
+    app_test["store_and_fwd_flag"].replace({None: "N"}, inplace=True)
+    app_train["store_and_fwd_flag"].replace({None: "N"}, inplace=True)
+    #app_test["store_and_fwd_flag"].replace({None: "N"}, inplace=True)
+    # 2.  - If the feature has 2 categories encode using binary encoding,
+    #       please use `sklearn.preprocessing.OrdinalEncoder()`. Only 4 columns
+    #       from the dataset should have 2 categories.
+    #     - If it has more than 2 categories, use one-hot encoding, please use
+    #       `sklearn.preprocessing.OneHotEncoder()`. 12 columns
+    #       from the dataset should have more than 2 categories.
+
+    # Removing columns that are not available in the momment that users are going to predict total amount and duration
+    app_test.drop("fare_amount", inplace=True, axis=1)
+    app_train.drop("fare_amount", inplace=True, axis=1)
+    #app_test.drop("fare_amount", inplace=True, axis=1)
+
+    app_test.drop("store_and_fwd_flag", inplace=True, axis=1)
+    app_train.drop("store_and_fwd_flag", inplace=True, axis=1)
+    #app_test.drop("store_and_fwd_flag", inplace=True, axis=1)
+
+    app_test.drop("trip_distance", inplace=True, axis=1)
+    app_train.drop("trip_distance", inplace=True, axis=1)
+    #app_test.drop("trip_distance", inplace=True, axis=1)
+
+    app_test.drop("RatecodeID", inplace=True, axis=1)
+    app_train.drop("RatecodeID", inplace=True, axis=1)
+    #app_test.drop("RatecodeID", inplace=True, axis=1)
+
+    app_test.drop("VendorID", inplace=True, axis=1)
+    app_train.drop("VendorID", inplace=True, axis=1)
+    #app_test.drop("VendorID", inplace=True, axis=1)
+
+    app_test.drop("tolls_amount", inplace=True, axis=1)
+    app_train.drop("tolls_amount", inplace=True, axis=1)
+    #app_test.drop("tolls_amount", inplace=True, axis=1)
+
+    app_test.drop("congestion_surcharge", inplace=True, axis=1)
+    app_train.drop("congestion_surcharge", inplace=True, axis=1)
+    #app_test.drop("congestion_surcharge", inplace=True, axis=1)
+
+    app_test.drop("tip_amount", inplace=True, axis=1)
+    app_train.drop("tip_amount", inplace=True, axis=1)
+    #app_test.drop("tip_amount", inplace=True, axis=1)
+
+    app_test.drop("mta_tax", inplace=True, axis=1)
+    app_train.drop("mta_tax", inplace=True, axis=1)
+    #app_test.drop("mta_tax", inplace=True, axis=1)
+
+    app_test.drop("extra", inplace=True, axis=1)
+    app_train.drop("extra", inplace=True, axis=1)
+    #app_test.drop("extra", inplace=True, axis=1)
+
+    print("columns", app_test.columns)
+
     return app_train, app_test
 
 
@@ -61,6 +210,11 @@ def agregate_columns(
 
     dataset.drop("tpep_pickup_datetime", inplace=True, axis=1)
     dataset.drop("tpep_dropoff_datetime", inplace=True, axis=1)
+
+
+
+
+
     return dataset
 
 
@@ -90,9 +244,6 @@ def get_feature_target(
     """
     X_train = app_train_param.copy()
     X_test = app_test_param.copy()
-
-    X_train = X_train[X_train['total_amount']<400]
-    X_test = X_test[X_test['total_amount']<400]
 
     # Assign to y_train the "TARGET" column
     y_train_total_amount = X_train.total_amount
