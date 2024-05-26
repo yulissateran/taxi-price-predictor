@@ -1,5 +1,11 @@
-export type TaxiZone = { Borough: string; LocationID: number; Zone: string; service_zone: string };
-export const TAXI_ZONES = [
+export type TaxiZone = {
+  Borough: string;
+  LocationID: number;
+  Zone: string;
+  service_zone: 'Airports' | 'Boro Zone' | 'Yellow Zone' | 'EWR';
+};
+
+export const TAXI_ZONES: TaxiZone[] = [
   {
     LocationID: 1,
     Borough: 'EWR',
@@ -1577,17 +1583,5 @@ export const TAXI_ZONES = [
     Borough: 'Manhattan',
     Zone: 'Yorkville West',
     service_zone: 'Yellow Zone',
-  },
-  {
-    LocationID: 264,
-    Borough: 'Unknown',
-    Zone: 'NV',
-    service_zone: 'N/A',
-  },
-  {
-    LocationID: 265,
-    Borough: 'Unknown',
-    Zone: 'NA',
-    service_zone: 'N/A',
   },
 ];
