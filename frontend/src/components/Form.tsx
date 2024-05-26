@@ -1,10 +1,10 @@
-import { Checkbox, Description, Field, Fieldset, Input, Label, Legend, Select } from '@headlessui/react';
+import { Checkbox, Field, Fieldset, Input, Label, Legend, Select } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import clsx from 'clsx';
 import { ReactNode, useState } from 'react';
+import yellowTaxi from '../images/yellow-taxi.png';
 import { TaxiZone } from '../taxi-zones';
 import ButtonComponent from './Button';
-
 export interface FormValue {
   isFreeTrip: boolean;
   pickUpId: number;
@@ -43,9 +43,7 @@ const SelectComponent = (props: React.SelectHTMLAttributes<HTMLSelectElement>) =
 const LabelComponent = ({ children }: { children: ReactNode }) => {
   return <Label className='text-sm/6 font-medium text-white'> {children}</Label>;
 };
-const DescriptionComponent = ({ children }: { children: ReactNode }) => {
-  return <Description className='text-sm/6 text-white/50'>{children}</Description>;
-};
+
 const InputComponent = (props: React.InputHTMLAttributes<HTMLInputElement>) => {
   return (
     <Input
@@ -70,18 +68,18 @@ const CheckboxComponent = ({ checked, onChange }: { checked: boolean; onChange?:
 const Form = ({ onSend, isLoading, zones }: { onSend: (formValue: FormValue) => void; isLoading: boolean; zones: TaxiZone[] }) => {
   const [isFreeTrip, setIsFreeTrip] = useState(false);
   const [pickUpId, setPickUpId] = useState(zones[0].LocationID.toString());
-  const [dropOffId, setDropOffId] = useState(zones[0].LocationID.toString());
+  const [dropOffId, setDropOffId] = useState(zones[zones.length - 1].LocationID.toString());
   const [pickUpDateTime, setPickUpDateTime] = useState('');
   const [passengersNumber, setPassengersNumber] = useState('1');
   const [paymentMethodId, setPaymentMethodId] = useState('1');
 
   return (
     <Fieldset className='space-y-6 '>
-      <Legend className='text-base/7 font-semibold text-white'>Trip details</Legend>
+      <Legend className='text-base/7 font-semibold text-white text-center'>Plan your ride</Legend>
+      <img src={yellowTaxi} alt='logo' className='w-auto h-32 mx-auto' />
 
       <Field>
         <LabelComponent>Pick up location</LabelComponent>
-        <DescriptionComponent>We currently only make trips in New York.</DescriptionComponent>
         <SelectComponent
           value={pickUpId}
           onChange={({ target }) => {
