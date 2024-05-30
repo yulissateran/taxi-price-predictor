@@ -4,6 +4,8 @@ export interface PredictPayload {
   passengersNumber: number;
   pickUpId: number;
   paymentMethodId: number;
+  distanceInMiles: number;
+  airportFee: 0 | 1.25;
 }
 
 const predict = async (data: PredictPayload): Promise<{ amount: string; duration: string }> => {
