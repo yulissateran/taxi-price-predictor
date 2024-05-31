@@ -219,35 +219,46 @@ def agregate_columns(
     dataset["pickup_hour"] = dataset["tpep_pickup_datetime"].dt.hour
     dataset["pickup_minute"] = dataset["tpep_pickup_datetime"].dt.minute
 
+    dataset['tpep_pickup_datetime'] = pd.to_datetime(dataset['tpep_pickup_datetime'])
+    dataset['tpep_dropoff_datetime'] = pd.to_datetime(dataset['tpep_dropoff_datetime'])
+
+    # Calculate trip duration in minutes
+    #dataset['duration_in_minutes'] = (dataset['tpep_dropoff_datetime'] - dataset['tpep_pickup_datetime']) / pd.Timedelta(minutes=1)
+
+    # Handle zero trip durations (optional)
+    #dataset.loc[dataset['duration_in_minutes'] == 0, 'duration_in_minutes'] = min_trip_duration
+
+    # Calculate average speed in miles per minute
+    dataset["average_speed_mph"] = dataset['trip_distance'] / dataset['duration_in_minutes']
+
+    # Add new columns (rounded to two decimals)
+    dataset['average_speed_mph'] = dataset["average_speed_mph"].round(2)  
+
     dataset.drop("tpep_pickup_datetime", inplace=True, axis=1)
     dataset.drop("tpep_dropoff_datetime", inplace=True, axis=1)
-
-
-
-
 
     return dataset
 
 
-def add_average_speed(dataset, min_trip_duration=1):
+#def add_average_speed(dataset, min_trip_duration=1):
   #Calculates and adds an 'average_speed_mph' column to a DataFrame (modifies input DataFrame).
 
   # Parse datetime columns 
-  dataset['tpep_pickup_datetime'] = pd.to_datetime(dataset['tpep_pickup_datetime'])
-  dataset['tpep_dropoff_datetime'] = pd.to_datetime(dataset['tpep_dropoff_datetime'])
+  #dataset['tpep_pickup_datetime'] = pd.to_datetime(dataset['tpep_pickup_datetime'])
+  #dataset['tpep_dropoff_datetime'] = pd.to_datetime(dataset['tpep_dropoff_datetime'])
 
   # Calculate trip duration in minutes
-  dataset['trip_duration'] = (dataset['tpep_dropoff_datetime'] - dataset['tpep_pickup_datetime']) / pd.Timedelta(minutes=1)
+  #dataset['duration_in_minutes'] = (dataset['tpep_dropoff_datetime'] - dataset['tpep_pickup_datetime']) / pd.Timedelta(minutes=1)
 
   # Handle zero trip durations (optional)
-  dataset.loc[dataset['trip_duration'] == 0, 'trip_duration'] = min_trip_duration
+  #dataset.loc[dataset['duration_in_minutes'] == 0, 'duration_in_minutes'] = min_trip_duration
 
   # Calculate average speed in miles per minute
-  average_speed = dataset['trip_distance'] / dataset['trip_duration']
+  #average_speed = dataset['trip_distance'] / dataset['duration_in_minutes']
 
   # Add new columns (rounded to two decimals)
-  dataset['average_speed_mph'] = average_speed.round(2)  
-  dataset['trip_duration'] = dataset['trip_duration'].round(2)
+  #dataset['average_speed_mph'] = average_speed.round(2)  
+  #dataset['duration_in_minutes'] = dataset['duration_in_minutes'].round(2)
 
 
 
